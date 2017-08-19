@@ -1,10 +1,13 @@
 #ifndef MOTORS_H_
 #define MOTORS_H_
 
-#define NUM_AXES            (2)
-#define STEPS_PER_ROTATION  (200)
-#define MICRO_STEPS         (8)
-#define MM_PER_ROTATION     (8.035)
+#define NUM_AXES                  2
+#define STEPS_PER_ROTATION        200
+#define MICRO_STEPS               8
+#define MM_PER_ROTATION           8.035
+#define MICRO_STEPS_PER_ROTATION  STEPS_PER_ROTATION * MICRO_STEPS
+#define STEPS_PER_MM              MICRO_STEPS_PER_ROTATION / MM_PER_ROTATION
+#define MM_PER_STEP               MM_PER_ROTATION / MICRO_STEPS_PER_ROTATION
 
 /* Setup for all stepper motors */
 void motors_init(void);
@@ -17,7 +20,7 @@ void motors_disable(void);
 void motors_step(char motor);
 
 /* Moves stepper motors from cur_pos to new_pos at the feedrate speed */
-void motors_move(Coordinate cur_pos, Coordinate new_pos, uint16_t feedrate);
+void motors_move(void);
 
 /* Zeros out motors to a 'home' position, Coordinates (0,0,0) */
 void home(void);
@@ -25,5 +28,15 @@ void home(void);
 /* Set & Get :: Position */
 void set_position(float  x, float  y);
 void get_position(float *x, float *y);
+
+/* Set & Get :: mm or inches */
+uint8_t get_mm_or_inches(void);
+void set_mode_mm(void);
+void set_mode_inches(void);
+
+/* Set & Get :: Absolute or Relative Positioning */
+uint8_t get_abs_or_rel(void);
+void set_mode_abs(void);
+void set_mode_abs(void);
 
 #endif  //  MOTORS_H_

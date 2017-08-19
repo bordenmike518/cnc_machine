@@ -1,7 +1,6 @@
-#include "lib/cnc.h"
+#include "cnc.h"
 
 #define MAX_BUF     (128)
-
 
 
 int main(void) {
@@ -15,6 +14,10 @@ int main(void) {
     motors_init();
     
     set_position(0.0, 0.0);
+    
+    set_mode_abs();
+    
+    set_mode_mm();
     
     usart_ready();
 

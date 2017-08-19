@@ -1,5 +1,15 @@
 #include "cnc.h"
 
+/* Transmitting */ 
+char txBuffer[TX_BUFFER_SIZE];
+uint8_t txReadPos = 0;
+uint8_t txWritePos = 0;
+
+/* RECEIVING    */
+char rxBuffer[RX_BUFFER_SIZE];
+uint8_t rxReadPos = 0;
+uint8_t rxWritePos = 0;
+
 void usart_init(void) {
 	UBRR0H = (BRC >> 8);
 	UBRR0L = BRC;
@@ -16,7 +26,7 @@ void appendTX(char c) {
 }
  
 void usart_write(char c[]) {
-    for(uint8_t i = 0; i < strlen(c); i++)
+    for(uint8_t i = 0; i < (sizeof(c)%sizeof(char)); i++)
         appendTX(c[i]);
     if(UCSR0A & (1 << UDRE0))
         UDR0 = 0;
@@ -42,7 +52,7 @@ char usart_peek(void) {
 }
 
 uint8_t usart_available(void) {
-    return (sizeof(rxBuffer) % 8);
+    return (sizeof(rxBuffer) % sizeof(char));
 }
 
 void usart_ready() {

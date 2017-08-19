@@ -1,8 +1,10 @@
 #include "cnc.h"
+#include "motors.h"
 
 float get_number(char *gcode_line, char character, float else_val) {
     char *input_ptr = &gcode_line[0];
-    while(*input_ptr && input_ptr && input_ptr < input_arr + input_index-1) {
+    uint8_t size_of = sizeof(gcode_line) % 8;
+    while(*input_ptr && input_ptr && input_ptr != '\0') {
         if (*input_ptr == character) {
             return atof(input_ptr+1);
         }
@@ -15,24 +17,26 @@ void gcode_interpret(char *gcode_line) {
     uint8_t cmd = get_number(gcode_line, 'G', -1);
     switch(cmd) {
         case 0: // Rapid Move
-            move_axes(get_number(gcode_line, 'X', cur_pos.x), \
-                      get_number(gcode_line, 'Y', cur_pos.y), \
-                      100);
+            new_pos.x = get_number(gcode_line, 'X', cur_pos.x);
+            new_pos.y = get_number(gcode_line, 'Y', cur_pos.y);
+            // Feedrate
+            motors_move();
             break;
         case 1: // Linear Move
-            move_axes(get_number(gcode_line, 'X', cur_pos.x), \
-                      get_number(gcode_line, 'Y', cur_pos.y), \
-                      get_number(gcode_line, 'F', speed_percent));
+            new_pos.x = get_number(gcode_line, 'X', cur_pos.x);
+            new_pos.y = get_number(gcode_line, 'Y', cur_pos.y);
+            // Feedrate
+            motors_move();
             break;
         case 2: // Clockwise Arc Move
         case 3: // Counter-Clockwise Arc Move
                 break;
         case 4: // Dwell(P:Seconds)
-                dwell(get_number('P', get_number(gcode_line, 'S', 1000))*1000);
-                speed_percent = get_number(gcode_line, 'F', speed_percent);
+                //dwell(get_number('P', get_number(gcode_line, 'S', 1000))*1000);
+                // Feedrate
                 break;
         case 10:
-                cmd = get_number(gcode_line, 'L', -1);
+                //cmd = get_number(gcode_line, 'L', -1);
                 switch(cmd)
                     case 1: /* Set Tool Table (P:Tool Number,
                                                R:Radius of Tool,
@@ -69,14 +73,14 @@ void gcode_interpret(char *gcode_line) {
                  break;
         //case 19.1: break; // PLANE SELECTION :: V W
         case 20: // MM MODE
-                 mode_mm = 0;
+                 set_mode_mm();
                  return;
         case 21: // INCHES MODE
-                 mode_mm = 1;
+                 set_mode_inches();
                  return;
         case 28: // HOMING
-                 speed_percent = get_number('F', speed_percent);
-                 origin();  
+                 // Feedrate
+                 home();  
                  break;
         case 29: // DETAILED Z-PROBE BED LEVELING
                  break;
@@ -87,25 +91,18 @@ void gcode_interpret(char *gcode_line) {
         case 32: // PROBE Z AND CALCULATE Z PLANE
                  break;
         case 82: // DRILL CYCLE
-                 new_pos.x = get_number(gcode_line, 'X', cur_pos.x);
-                 new_pos.y = get_number(gcode_line, 'Y', cur_pos.y);
-                 //new_pos.z = get_number(gcode_line, 'Z', cur_pos.z);
-                 //retract_pos = get_number(gcode_line, 'R', 5);
-                 dwell(get_number(gcode_line, 'P', 5000));
-                 speed_percent = get_number(gcode_line, 'F', speed_percent);
-                 //num_repeats = get_number(gcode_line, 'L', 1);
-                 move_axes();
-                 cur_pos.x=new_pos.x; cur_pos.y=new_pos.y; //cur_pos.z=new_pos.z;
                  break;
         case 90: // ABSOLUTE POSITIONING
-                 mode_abs = 1; 
+                 set_mode_abs(); 
                  break;
-        case 91: // mode_abs = 0; break;
+        case 91: // RELATIVE POSITIONING
+                 set_mode_rel();
+                 break;
         case 92: // OFFSET
                  cur_pos.x = get_number(gcode_line, 'X', cur_pos.x);
                  cur_pos.y = get_number(gcode_line, 'Y', cur_pos.y);
                  //cur_pos.z = get_number(gcode_line, 'Z', cur_pos.z);
-                 speed_percent = get_number(gcode_line, 'F', speed_percent);
+                 // Feedrate
                  break;
         default: // DEFAULT
                  break;

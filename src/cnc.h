@@ -14,10 +14,10 @@
 #   define MIN_DELAY        (1)
 #endif
 
-#define BV (bit)                 (1 << (bit))
-#define GETB   (byte, bit)       ((byte) & (bit))
-#define SETB   (byte, bit)       ((byte) |=  BV(bit))
-#define CLEARB (byte, bit)       ((byte) &= ~BV(bit))
+#define BV(bit)                  (1 << (bit))
+#define GETB(byte, bit)          ((byte) & (bit))
+#define SETB(byte, bit)          ((byte) |=  BV(bit))
+#define CLEARB(byte, bit)        ((byte) &= ~BV(bit))
 #define TOGGLEB(byte, bit)       ((byte) ^=  BV(bit))
 
 #include <stdlib.h>
@@ -25,6 +25,7 @@
 #include <avr/interrupt.h>
 #include <util/delay.h>
 #include <math.h>
+#include <string.h>
 #include <stdbool.h>
 
 typedef struct {
@@ -40,9 +41,12 @@ typedef struct {
     float z;
 } Coordinate;
 
+Coordinate cur_pos;
+Coordinate new_pos;
+
 /* Defined for the CNC Machine */
-#include "usart.h"
 #include "limits.h"
+#include "usart.h"
 #include "motors.h"
 #include "gcode.h"
 

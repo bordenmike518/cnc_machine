@@ -10,16 +10,6 @@
 /* Serial Initialization */
 void usart_init(void);
 
-/* Transmitting */ 
-char txBuffer[TX_BUFFER_SIZE];
-uint8_t txReadPos = 0;
-uint8_t txWritePos = 0;
-
-/* RECEIVING    */
-char rxBuffer[RX_BUFFER_SIZE];
-uint8_t rxReadPos = 0;
-uint8_t rxWritePos = 0;
-
 /* Transmitting */
 void appendTX(char c);
 void usart_write(char  c[]);
