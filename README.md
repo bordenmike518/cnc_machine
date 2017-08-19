@@ -6,11 +6,14 @@ This is a G-Code interpreter for a cnc machine that I am working on.
 It will be used to etch PCBs with a drill for in house prototyping.
 There is a python terminal program that is used to connect over serial.
 
-TODO :: Remove any Arduino dependant functions and use AVR library.
-Completed
-1. USART Serial communication.
+Hardware Used
+- Computer System       :: Raspberry Pi 3
+- Microcontroller Board :: Protoneer CNC Hat (Can also use with Arduino and Protoneer CNC Shield)
+- Stepper Motor Driver  :: DRV8825
+- Stepper Motor         :: 3 x Nema 17
+- Power Supply Unit     :: 12v 30a DC Universal Regulated Switching
+- Bootloader Device     :: USBasp for CNC Hat, USBtiny for CNC Shield
 
-Not Completed
-1. Pin manipulation for stepper motor control.
-2. Change delayMicroseconds -> _delay_ms.
-3. Abstraction of files.
+[[ :: TODO :: ]]
+1. Setup speed settings to smooth movements.
+2. Upload to Raspberry Pi 3 and Test
