@@ -37,6 +37,10 @@ void set_mode_inches(void);
 /* Set & Get :: Absolute or Relative Positioning */
 uint8_t get_abs_or_rel(void);
 void set_mode_abs(void);
-void set_mode_abs(void);
+void set_mode_rel(void);
+
+/* Timing Function, returns last sign (-1 || 1) */
+void timing(uint32_t step_total, uint32_t step_current, uint8_t *last_sign);
+void dwell(float seconds);
 
 #endif  //  MOTORS_H_

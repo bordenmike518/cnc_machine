@@ -32,7 +32,8 @@ void gcode_interpret(char *gcode_line) {
         case 3: // Counter-Clockwise Arc Move
                 break;
         case 4: // Dwell(P:Seconds)
-                //dwell(get_number('P', get_number(gcode_line, 'S', 1000))*1000);
+                //dwell(get_number(gcode_line, 'P', 
+                //      get_number(gcode_line, 'S', 1000))*1000);
                 // Feedrate
                 break;
         case 10:

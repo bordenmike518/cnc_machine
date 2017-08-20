@@ -15,10 +15,11 @@
 #endif
 
 #define BV(bit)                  (1 << (bit))
-#define GETB(byte, bit)          ((byte) & (bit))
-#define SETB(byte, bit)          ((byte) |=  BV(bit))
-#define CLEARB(byte, bit)        ((byte) &= ~BV(bit))
-#define TOGGLEB(byte, bit)       ((byte) ^=  BV(bit))
+#define GETB(byte, bit)          (_SFR_BYTE(byte) &   BV(bit))
+#define SETB(byte, bit)          (_SFR_BYTE(byte) |=  BV(bit))
+#define CLEARB(byte, bit)        (_SFR_BYTE(byte) &= ~BV(bit))
+#define TOGGLEB(byte, bit)       (_SFR_BYTE(byte) ^=  BV(bit))
+#define MAX_BUF                  (128)
 
 #include <stdlib.h>
 #include <avr/io.h>
@@ -41,7 +42,6 @@ typedef struct {
     float z;
 } Coordinate;
 
-/* Global Positioning. (lol) */
 Coordinate cur_pos;
 Coordinate new_pos;
 

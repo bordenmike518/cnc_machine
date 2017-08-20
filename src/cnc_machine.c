@@ -1,7 +1,5 @@
 #include "cnc.h"
 
-#define MAX_BUF     (128)
-
 
 int main(void) {
 
@@ -9,20 +7,20 @@ int main(void) {
     char input_char,
          input_arr[MAX_BUF];
 
+    /* Ininitializations */
     usart_init();
     limits_init();
     motors_init();
     
+    /* Set program start parameters */
     set_position(0.0, 0.0);
-    
     set_mode_abs();
-    
     set_mode_mm();
     
+    /* Ready for next */
     usart_ready();
 
     while(1) {
-        motors_disable();
         while(usart_available() > 0) {
             _delay_ms(100);
             input_char = usart_read();

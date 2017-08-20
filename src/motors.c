@@ -154,7 +154,6 @@ void get_position(float *x, float *y) {
     *y = cur_pos.y;
 }
 
-// mode mm = 1, mode inches = 0
 uint8_t get_mm_or_iches(void) {
     return mode_mm;
 }
@@ -165,7 +164,6 @@ void set_mode_inches(void) {
     mode_mm = 1;
 }
 
-// mode abs = 1, mode rel = 0
 uint8_t get_abs_or_rel(void) {
     return mode_abs;
 }
@@ -174,4 +172,34 @@ void set_mode_abs(void) {
 }
 void set_mode_rel(void) {
     mode_abs = 0;
+}
+
+void timing(uint32_t step_total, uint32_t step_current, uint8_t *last_sign) {
+    uint32_t ending_head, ending_tail,
+             two_mm = 2 * STEPS_PER_MM;
+    double delay_count = 1000, delay_time;
+    if (step_total < two_mm) {
+        beginning_end = step_total/2.0;
+        ending_start = beginning_end;
+        delay_time = delay_count / beginning_end;
+    }
+    else {
+        beginning_end = two_mm;
+        ending_start = step_total - two_mm;
+        delay_time = delay_count / two_mm;
+    }
+    uint8_t speed_percent = 50;
+    if (speed_percent >= 50 && speed_percent <= 100) {
+      if (step_current < beginning_end)
+          _delay_ms(delay_count - (step_current * (uint32_t)delay_time));
+      if (step_current > ending_start) 
+          _delay_ms((step_current - ending_start) * (uint32_t)delay_time);
+    }
+}
+
+void dwell(float seconds) {
+    seconds *= 5;
+    uint8_t i = 0;
+    for(;i < seconds; i++)
+        _delay_ms(200);
 }
