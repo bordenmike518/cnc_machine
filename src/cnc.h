@@ -42,6 +42,7 @@ typedef struct {
     float z;
 } Coordinate;
 
+/* Global Position */
 Coordinate cur_pos;
 Coordinate new_pos;
 

@@ -40,6 +40,7 @@ void set_mode_abs(void);
 void set_mode_rel(void);
 
 /* Timing Function, returns last sign (-1 || 1) */
+void my_delay_ms(uint32_t milliseconds);
 void timing(uint32_t step_total, uint32_t step_current, uint8_t *last_sign);
 void dwell(float seconds);
 

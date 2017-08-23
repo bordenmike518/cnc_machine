@@ -5,6 +5,6 @@
 void limits_init(void);
 
 /* Returns true if any end stop is set to HIGH */
-bool limits(void);
+bool limits_get(void);
 
 #endif // LIMITS_H_

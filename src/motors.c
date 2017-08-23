@@ -94,7 +94,7 @@ void motors_move(void) {
       m = dx / (float)dy;
 
     if (dx >= dy) {
-      for (; x < dx && limits() == false; x++) {
+      for (; x < dx && limits_get() == false; x++) {
         motors_step('x');
         cur_pos.x += sdx * MM_PER_STEP;
         missed_steps = (m * x) - y;
@@ -106,7 +106,7 @@ void motors_move(void) {
       }
     }
     else {
-      for (; y < dy && limits() == false; y++) {
+      for (; y < dy && limits_get() == false; y++) {
         motors_step('y');
         cur_pos.y += sdy * MM_PER_STEP;
         missed_steps = (m * y) - x;
@@ -174,9 +174,16 @@ void set_mode_rel(void) {
     mode_abs = 0;
 }
 
+void my_delay_ms(uint32_t milliseconds) {
+    uint32_t i = 0, centiseconds = milliseconds % 10;
+    for(; i < centiseconds; i++) {
+        _delay_ms(10);
+    }
+}
+
 void timing(uint32_t step_total, uint32_t step_current, uint8_t *last_sign) {
-    uint32_t ending_head, ending_tail,
-             two_mm = 2 * STEPS_PER_MM;
+    uint32_t beginning_end, ending_start,
+             two_mm = 2 * STEPS_PER_MM, buff;
     double delay_count = 1000, delay_time;
     if (step_total < two_mm) {
         beginning_end = step_total/2.0;
@@ -190,10 +197,14 @@ void timing(uint32_t step_total, uint32_t step_current, uint8_t *last_sign) {
     }
     uint8_t speed_percent = 50;
     if (speed_percent >= 50 && speed_percent <= 100) {
-      if (step_current < beginning_end)
-          _delay_ms(delay_count - (step_current * (uint32_t)delay_time));
-      if (step_current > ending_start) 
-          _delay_ms((step_current - ending_start) * (uint32_t)delay_time);
+      if (step_current < beginning_end) {
+          buff = delay_count - (step_current * (uint32_t)delay_time);
+          my_delay_ms(buff);
+      }
+      if (step_current > ending_start) {
+          buff = (step_current - ending_start) * (uint32_t)delay_time;
+          my_delay_ms(buff);
+      }
     }
 }
 

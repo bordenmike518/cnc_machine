@@ -9,7 +9,7 @@ void limits_init(void) {
     SETB(PORTB, 3);  // Z Pull up resistor
 }
 
-bool limits(void) {
+bool limits_get(void) {
     uint8_t i = 1;
     for (; i < 4; i++) {
         if (~GETB(PINB, i))
