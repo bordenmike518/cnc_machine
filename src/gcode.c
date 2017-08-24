@@ -17,16 +17,14 @@ void gcode_interpret(char *gcode_line) {
     uint8_t cmd = get_number(gcode_line, 'G', -1);
     switch(cmd) {
         case 0: // Rapid Move
-            new_pos.x = get_number(gcode_line, 'X', cur_pos.x);
-            new_pos.y = get_number(gcode_line, 'Y', cur_pos.y);
             // Feedrate
-            motors_move();
+            motors_move(get_number(gcode_line, 'X', cur_pos.x),
+                        get_number(gcode_line, 'Y', cur_pos.y));
             break;
         case 1: // Linear Move
-            new_pos.x = get_number(gcode_line, 'X', cur_pos.x);
-            new_pos.y = get_number(gcode_line, 'Y', cur_pos.y);
             // Feedrate
-            motors_move();
+            motors_move(get_number(gcode_line, 'X', cur_pos.x),
+                        get_number(gcode_line, 'Y', cur_pos.y));
             break;
         case 2: // Clockwise Arc Move
         case 3: // Counter-Clockwise Arc Move

@@ -5,13 +5,13 @@
 #ifdef DEBUG_ON
 #   define DEBUG(fmt)       Serial.print(fmt)
 #   define DEBUGLN(fmt)     Serial.println(fmt)
-#   define MAX_DELAY        (100)
-#   define MIN_DELAY        (0)
+#   define DELAY_MAX        (100)
+#   define DELAY_MIN        (0)
 #else
 #   define DEBUG(fmt)
 #   define DEBUGLN(fmt)
-#   define MAX_DELAY        (500)
-#   define MIN_DELAY        (1)
+#   define DELAY_MAX        (500)
+#   define DELAY_MIN        (1)
 #endif
 
 #define BV(bit)                  (1 << (bit))
@@ -19,7 +19,7 @@
 #define SETB(byte, bit)          (_SFR_BYTE(byte) |=  BV(bit))
 #define CLEARB(byte, bit)        (_SFR_BYTE(byte) &= ~BV(bit))
 #define TOGGLEB(byte, bit)       (_SFR_BYTE(byte) ^=  BV(bit))
-#define MAX_BUF                  (128)
+#define BUFF_MAX                  (128)
 
 #include <stdlib.h>
 #include <avr/io.h>

@@ -4,11 +4,11 @@ uint8_t   mode_mm = 1,
           mode_abs = 1; 
 
 void motors_init() {
-    SETB(DDRB, 0);  // Enable / Disable
-    SETB(DDRD, 2);  // X Step Pulse
-    SETB(DDRD, 5);  // X Direction
-    SETB(DDRD, 3);  // Y Step Pulse
-    SETB(DDRD, 6);  // Y Direction
+    SETB(DDRB, PB0);  // Enable / Disable
+    SETB(DDRD, PD2);  // X Step Pulse
+    SETB(DDRD, PD5);  // X Direction
+    SETB(DDRD, PD3);  // Y Step Pulse
+    SETB(DDRD, PD6);  // Y Direction
     //SETB(DDRD, PD4);  // Z Step Pulse
     //SETB(DDRD, PD7);  // Z Direction
     
@@ -16,32 +16,32 @@ void motors_init() {
 }
 
 void motors_enable(void) {
-    SETB(PORTB, 0);
+    SETB(PORTB, PB0);
 }
 
 void motors_disable(void) {
-    CLEARB(PORTB, 0);
+    CLEARB(PORTB, PB0);
 }
 
 void motors_step(char motor) {
     if (motor == 'x' || motor == 'X') {
-        SETB(PORTD, 2);
+        SETB(PORTD, PD2);
         _delay_ms(5);
-        CLEARB(PORTD, 2);
+        CLEARB(PORTD, PD2);
     }
     else if (motor == 'y' || motor == 'Y') {
-        SETB(PORTD, 3);
+        SETB(PORTD, PD3);
         _delay_ms(5);
-        CLEARB(PORTD, 3);
+        CLEARB(PORTD, PD3);
     }
     else if (motor == 'z' || motor == 'Z') {
-        SETB(PORTD, 4);
+        SETB(PORTD, PD4);
         _delay_ms(5);
-        CLEARB(PORTD, 4);
+        CLEARB(PORTD, PD4);
     }
 }
 
-void motors_move(void) {
+void motors_move(float new_pos_x, float new_pos_y) {
     uint8_t  sdx,       // The sign of the change in X
              sdy;       // The sign of the change in Y
     uint32_t dx,        // Change in x
@@ -58,28 +58,28 @@ void motors_move(void) {
         steps = STEPS_PER_MM * 25.4;
         
     if (mode_abs == 1) {
-        dx = (new_pos.x - cur_pos.x) * steps;
-        dy = (new_pos.y - cur_pos.y) * steps;
+        dx = (new_pos_x - cur_pos.x) * steps;
+        dy = (new_pos_y - cur_pos.y) * steps;
     }
     if (mode_abs == 0) {
-        dx = new_pos.x * steps;
-        dy = new_pos.y * steps;
+        dx = new_pos_x * steps;
+        dy = new_pos_y * steps;
     }
 
     if (dx > 0) {
-        CLEARB(PORTD, 5);
+        CLEARB(PORTD, PD5);
         sdx = 1;
     }
     else {
-        SETB(PORTD, 5);
+        SETB(PORTD, PD5);
         sdx = -1;
     }
     if (dy > 0) {
-        SETB(PORTD, 6);
+        SETB(PORTD, PD6);
         sdy = 1;
     }
     else {
-        CLEARB(PORTD, 6);
+        CLEARB(PORTD, PD6);
         sdy = -1;
     }
 
@@ -121,23 +121,23 @@ void motors_move(void) {
 
 void home(void) {
     new_pos.x = 0; new_pos.y = 0;
-    SETB(PORTD, 5);
-    CLEARB(PORTD, 6);
+    SETB(PORTD, PD5);
+    CLEARB(PORTD, PD6);
     while (~GETB(PORTB, 1)) {
         motors_step('x');
         cur_pos.x -= MM_PER_STEP;
     }
     while (GETB(PORTB, 1)) {
-        CLEARB(PORTD, 5);
+        CLEARB(PORTD, PD5);
         _delay_ms(10);
         motors_step('x');
     }
-    while (~GETB(PORTB, 2)) {
+    while (~GETB(PORTB, PB2)) {
         motors_step('y');
         cur_pos.y -= MM_PER_STEP;
     }
-    while (GETB(PORTB, 2)) {
-        SETB(PORTD, 6);
+    while (GETB(PORTB, PB2)) {
+        SETB(PORTD, PD6);
         _delay_ms(10);
         motors_step('y');
     }
@@ -181,7 +181,14 @@ void my_delay_ms(uint32_t milliseconds) {
     }
 }
 
-void timing(uint32_t step_total, uint32_t step_current, uint8_t *last_sign) {
+void dwell(float seconds) {
+    seconds *= 5;
+    uint8_t i = 0;
+    for(;i < seconds; i++)
+        _delay_ms(200);
+}
+
+void timing(uint32_t step_current, uint32_t step_total) {
     uint32_t beginning_end, ending_start,
              two_mm = 2 * STEPS_PER_MM, buff;
     double delay_count = 1000, delay_time;
@@ -194,23 +201,28 @@ void timing(uint32_t step_total, uint32_t step_current, uint8_t *last_sign) {
         beginning_end = two_mm;
         ending_start = step_total - two_mm;
         delay_time = delay_count / two_mm;
+    } {
+    /* Activation (Sigmoid) Function used to smooth the transition of speed
+    
+    DELAY_MIN---          .---|---------------|---.           ---Max Speed
+                        .'    |               |    '.
+                      ,*   1  |       2       |  3   *.
+    DELAY_MAX---__,.-*        |               |        *-.,___---Min Speed
+                         beginning_end   ending_start
+    Steps: 0 ----------------------------------------------------Steps: two_mm
+    
+    */
+    if (step_current < beginning_end) {
+        buff = DELAY_MAX-(DELAY_MAX-DELAY_MIN)*(1/(1+exp(-(10* \
+                               (step_current/beginning_end)-5)));
+        my_delay_ms(buff);
     }
-    uint8_t speed_percent = 50;
-    if (speed_percent >= 50 && speed_percent <= 100) {
-      if (step_current < beginning_end) {
-          buff = delay_count - (step_current * (uint32_t)delay_time);
-          my_delay_ms(buff);
-      }
-      if (step_current > ending_start) {
-          buff = (step_current - ending_start) * (uint32_t)delay_time;
-          my_delay_ms(buff);
-      }
+    if (step_current > ending_start) {
+        buff = DELAY_MIN+(DELAY_MAX-DELAY_MIN)*(1-(1/(1 + exp(-(10* \
+                               (step_current-ending_start/beginning_end)-5)))));
+        my_delay_ms(buff);
     }
+  }
 }
 
-void dwell(float seconds) {
-    seconds *= 5;
-    uint8_t i = 0;
-    for(;i < seconds; i++)
-        _delay_ms(200);
-}
+

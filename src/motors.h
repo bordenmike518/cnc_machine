@@ -20,7 +20,7 @@ void motors_disable(void);
 void motors_step(char motor);
 
 /* Moves stepper motors from cur_pos to new_pos at the feedrate speed */
-void motors_move(void);
+void motors_move(float new_pos_x, float new_pos_y);
 
 /* Zeros out motors to a 'home' position, Coordinates (0,0,0) */
 void home(void);
@@ -41,7 +41,7 @@ void set_mode_rel(void);
 
 /* Timing Function, returns last sign (-1 || 1) */
 void my_delay_ms(uint32_t milliseconds);
-void timing(uint32_t step_total, uint32_t step_current, uint8_t *last_sign);
 void dwell(float seconds);
+void timing(uint32_t step_total, uint32_t step_current, uint8_t *last_sign);
 
 #endif  //  MOTORS_H_
