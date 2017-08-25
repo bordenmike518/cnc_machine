@@ -15,5 +15,6 @@ Hardware Used
 - Bootloader Device     :: USBasp for CNC Hat, USBtiny for CNC Shield
 
 [[ :: TODO :: ]]
-1. Setup speed settings to smooth movements.
-2. Upload to Raspberry Pi 3 and Test
+1. Upload to Raspberry Pi 3 and Test
+2. Debug. Test. Debug.
+3. Move to phase two!~!
