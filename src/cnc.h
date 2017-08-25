@@ -19,7 +19,7 @@
 #define SETB(byte, bit)          (_SFR_BYTE(byte) |=  BV(bit))
 #define CLEARB(byte, bit)        (_SFR_BYTE(byte) &= ~BV(bit))
 #define TOGGLEB(byte, bit)       (_SFR_BYTE(byte) ^=  BV(bit))
-#define BUFF_MAX                  (128)
+#define BUFF_MAX                 (128)
 
 #include <stdlib.h>
 #include <avr/io.h>

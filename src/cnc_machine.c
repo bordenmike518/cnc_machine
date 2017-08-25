@@ -5,7 +5,7 @@ int main(void) {
 
     uint8_t input_index = 0;
     char input_char,
-         input_arr[MAX_BUF];
+         input_arr[BUFF_MAX];
 
     /* Ininitializations */
     usart_init();
