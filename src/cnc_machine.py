@@ -1,8 +1,26 @@
 from serial import Serial as ser
 from time import sleep
 from sys import stdout, argv
+import numpy as np
+import scipy.linalg
 
-VERSION = 1.0
+def bed_leveling(x_y_sample_points, z_samples):
+    '''
+    After creating X, Y, and Z vector samples, use this alogirthm to create 
+    beta_hat coefficients for a multivariate polynomial regression that will 
+    take cur_pos.x/y and return a corrected z position.
+    
+    Z = C[0] + C[1]*X + C[2]*Y + C[3]*X*Y + C[4]*X**2 + C[5]*Y**2
+    
+    X, Y = vector of x positions
+    '''
+    x = []
+    y = []
+    [list(xy) for xy in zip(*z_samples)]    # xy[0] = X vector, xy[1] = Y vector
+    data = np.c_[xy[0], xy[1], z_samples]
+    A = np.c_[np.ones(data.shape[0]),data[:,:2],np.prod(data[:,:2],axis=1),data[:,:2]**2]
+    coefficients,_,_,_ = scipy.linalg.lstsq(A, data[:,2])
+    return coefficients 
 
 def main():
     with ser() as Serial:
@@ -25,7 +43,6 @@ def main():
     # Program loop
     while (True):
 
-        while(Serial.is_open):
         # Wait for a microcontroller to be ready for next command.
         while(Serial.readline() != "ready\r\n"):
             pass

@@ -122,7 +122,7 @@ void motors_move(float new_pos_x, float new_pos_y) {
 }
 
 void home(void) {
-    new_pos.x = 0; new_pos.y = 0;
+    set_position(0.0, 0.0);
     SETB(PORTD, PD5);
     CLEARB(PORTD, PD6);
     while (~GETB(PORTB, 1)) {
@@ -192,38 +192,41 @@ void dwell(float seconds) {
 
 /* Activation (Sigmoid) Function used to smooth the transition of speed
     
-DELAY_MIN---          .--|---------------|--.           ---Speed Max
-               |    .'   |               |   '.    |
-               |  ,*  s1 |    center     | s2  *.  |
-DELAY_MAX---__,|-*       |               |       *-|,___---Speed Min
-             start  beginning_end   ending_start  end
-Step : 0 ----------------------------------------------------Step : mm_to_travel
+DELAY_MIN---   |  S1  |.-------------------.|  S2  |   ---Speed Max
+          start|    .'|                     |'.    |end
+               |  ,*  |       center        |  *.  |
+DELAY_MAX---__,|-*    |                     |    *-|,__---Speed Min
+                                      ending_start 
+Step : 0 ----------------------------------------------------Step : step_total
 
-s1 is the first sigmoid function (1/(1+e^(-(10x-5)))) where x is the step_current
-s2 is the second sigmoid fucntion (1/(1+e^((10x-5)))) where x is the step_current
-If the step_total > mm_to_travel, the center steps will run at Speed Max
-Else the center will not run. s1 and s2 will be shrunk by devisor
+(S1) Sigmoid One is the first sigmoid function      (s_m/(1+e^(-(10x-5))))           
+(S2) Sigmoid Two is the second sigmoid fucntion     (s_m/(1+e^( (10x-5)))) 
+    where x is the step_current
+          s_m is the speed_max  
+          e = 2.71828182846 
+
+if (the step_total > sigmoid_size_mm) 
+    the center steps will run at Speed Max
+else 
+    the center will not run. speed max will be shrunk by devisor
 */
 void sigmoid_smoothing(uint32_t step_current, uint32_t step_total) {
-    uint16_t mm_to_travel = 5 * STEPS_PER_MM,   // mm_to_travel = <mm> * STEPS_PER_MM
+    uint16_t sigmoid_steps = 5 * STEPS_PER_MM,  // sigmoid_steps = <mm> * STEPS_PER_MM
              delay_time_ms = DELAY_MAX;
-    uint32_t beginning_end = mm_to_travel,
-             ending_start = step_total - mm_to_travel;
-    double   difference = DELAY_MAX-DELAY_MIN,
-             divisor = 1.0;
-    if (step_total < mm_to_travel) {
-        beginning_end = step_total/2.0;
-        ending_start = beginning_end;
-        divisor = step_current / difference;
+    uint32_t ending_start  = step_total - sigmoid_steps;
+    double   difference    = DELAY_MAX-DELAY_MIN,
+             speed_max     = 1.0;   // 1.0 = 100%
+    if (step_total < sigmoid_steps) {
+        sigmoid_steps = step_total/2.0;         // Decrease sigmoid step total
+        ending_start = sigmoid_steps;           // Set new center
+        speed_max = step_current / difference;  // Decrease Speed Max
     }
-    if (step_current < beginning_end) {
-        delay_time_ms-=(difference)*(divisor/(1+exp(-(10* \
-                               (step_current/mm_to_travel)-5))));
+    if (step_current < sigmoid_steps) {
+        delay_time_ms-=(difference)*(speed_max/(1+pow(EXP,(-(10*(step_current/sigmoid_steps)-5)))));
         my_delay_ms(delay_time_ms);
     }
     else if (step_current > ending_start) {
-        delay_time_ms+=(difference)*(divisor/(1+exp(10* \
-                               (step_current-ending_start/mm_to_travel)-5)));
+        delay_time_ms+=(difference)*(speed_max/(1+pow(EXP,(10*(step_current-ending_start/sigmoid_steps)-5))));
         my_delay_ms(delay_time_ms);
     }
 }

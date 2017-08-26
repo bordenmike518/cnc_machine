@@ -30,8 +30,8 @@ void gcode_interpret(char *gcode_line) {
         case 3: // Counter-Clockwise Arc Move
                 break;
         case 4: // Dwell(P:Seconds)
-                //dwell(get_number(gcode_line, 'P', 
-                //      get_number(gcode_line, 'S', 1000))*1000);
+                dwell(get_number(gcode_line, 'P', 
+                      get_number(gcode_line, 'S', 1000))*1000);
                 // Feedrate
                 break;
         case 10:
@@ -43,7 +43,7 @@ void gcode_interpret(char *gcode_line) {
                                                J:Back Angle(lathe),
                                                Q:Orientation(lathe))
                             */
-                    case 2:/* Set Coordinate System (P:Coordinate System,
+                    case 2: /* Set Coordinate System (P:Coordinate System,
                                                      R:Rotation About Z axis)
                             */
                     case 10: /* Set Tool Table (P:Tool Number,

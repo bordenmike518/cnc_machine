@@ -11,7 +11,7 @@
 void usart_init(void);
 
 /* Transmitting */
-void appendTX(char c);
+void tx_append(char c);
 void usart_write(char  c[]);
 
 /* RECEIVING    */

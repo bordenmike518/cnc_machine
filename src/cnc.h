@@ -10,16 +10,17 @@
 #else
 #   define DEBUG(fmt)
 #   define DEBUGLN(fmt)
-#   define DELAY_MAX        (500)
-#   define DELAY_MIN        (1)
+#   define DELAY_MAX        (1000)
+#   define DELAY_MIN        (20)
 #endif
 
-#define BV(bit)                  (1 << (bit))
-#define GETB(byte, bit)          (_SFR_BYTE(byte) &   BV(bit))
-#define SETB(byte, bit)          (_SFR_BYTE(byte) |=  BV(bit))
-#define CLEARB(byte, bit)        (_SFR_BYTE(byte) &= ~BV(bit))
-#define TOGGLEB(byte, bit)       (_SFR_BYTE(byte) ^=  BV(bit))
-#define BUFF_MAX                 (128)
+#define BV(bit)             (1 << (bit))
+#define GETB(byte, bit)     (_SFR_BYTE(byte) &   BV(bit))
+#define SETB(byte, bit)     (_SFR_BYTE(byte) |=  BV(bit))
+#define CLEARB(byte, bit)   (_SFR_BYTE(byte) &= ~BV(bit))
+#define TOGGLEB(byte, bit)  (_SFR_BYTE(byte) ^=  BV(bit))
+#define BUFF_MAX            (128)
+#define EXP                 (2.71828182846)
 
 #include <stdlib.h>
 #include <avr/io.h>
@@ -44,7 +45,6 @@ typedef struct {
 
 /* Global Position */
 Coordinate cur_pos;
-Coordinate new_pos;
 
 /* Defined for the CNC Machine */
 #include "limits.h"

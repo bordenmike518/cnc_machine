@@ -4,15 +4,15 @@
 int main(void) {
 
     uint8_t input_index = 0;
-    char input_char,
-         input_arr[BUFF_MAX];
+    char    input_char,
+            input_arr[BUFF_MAX];
 
     /* Ininitializations */
     usart_init();
     limits_init();
     motors_init();
     
-    /* Set program start parameters */
+    /* Set program initial parameters */
     set_position(0.0, 0.0);
     set_mode_abs();
     set_mode_mm();
@@ -20,9 +20,11 @@ int main(void) {
     /* Ready for next */
     usart_ready();
 
+    /* Program Infinite Room */
     while(1) {
+        while(usart_available() == 0) {}
         while(usart_available() > 0) {
-            _delay_ms(100);
+            _delay_ms(100); // _delay_us(100);
             input_char = usart_read();
             if (input_index++ < BUFF_MAX-1 && input_char != '\0')
                 input_arr[input_index] = input_char;
